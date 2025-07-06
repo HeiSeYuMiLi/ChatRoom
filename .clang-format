@@ -1,0 +1,60 @@
+# 基础格式风格（可选：LLVM, Google, Chromium, Mozilla, WebKit等）
+BasedOnStyle: LLVM
+
+# 语言标准
+Language: Cpp
+Standard: Cpp11
+
+# Lambda 表达式控制
+AllowShortLambdasOnASingleLine: Empty
+BraceWrapping:
+  AfterFunction: true
+  BeforeLambdaBody: false    # lambda 左大括号不换行
+  AfterClass: true
+  AfterControlStatement: true
+  AfterEnum: true
+  AfterNamespace: true
+  AfterObjCDeclaration: true
+  AfterStruct: true
+  AfterUnion: true
+  BeforeCatch: true
+  BeforeElse: true
+  IndentBraces: false
+IndentWrappedFunctionNames: false
+
+# 缩进设置
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+
+# 大括号风格
+BreakBeforeBraces: Custom                   # 改为Custom以配合lambda控制
+
+# 行长度
+ColumnLimit: 120
+
+# 指针和引用对齐
+PointerAlignment: Left
+
+# 空格设置
+SpaceBeforeParens: ControlStatements
+SpaceAfterTemplateKeyword: true
+SpaceInEmptyParentheses: false
+
+# 换行设置
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None
+
+# 对齐设置
+AlignConsecutiveDeclarations: false
+AlignEscapedNewlines: Right
+AlignOperands: true
+AlignTrailingComments: true
+
+# 包含文件排序
+SortIncludes: true
+
+# 其他
+FixNamespaceComments: true
+ReflowComments: true
