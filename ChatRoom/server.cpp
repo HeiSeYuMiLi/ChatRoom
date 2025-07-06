@@ -2,6 +2,7 @@
 #include <iostream>
 #include <memory>
 #include <set>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -17,8 +18,6 @@ class chat_participant
     virtual void deliver(const std::string& msg) = 0;
 };
 
-using chat_participant_ptr = std::shared_ptr<chat_participant>;
-
 class chat_message
 {
   public:
@@ -33,6 +32,8 @@ class chat_message
 
     chat_message() : body_length_(0)
     {
+        // 初始化 header
+        std::fill(data_, data_ + header_length, 0);
     }
 
     chat_message(std::string const& msg) : body_length_(msg.size())
@@ -106,12 +107,17 @@ class chat_message
     std::size_t body_length_;
 };
 
+using chat_participant_ptr = std::shared_ptr<chat_participant>;
+using chat_message_queue = std::deque<chat_message>;
+
 class chat_room
 {
   public:
     void join(chat_participant_ptr participant)
     {
+        // 添加新成员到聊天室
         participants_.insert(participant);
+        // 向新成员发送最近的消息
         for (const auto& msg : recent_msgs_)
         {
             participant->deliver(msg);
@@ -123,9 +129,12 @@ class chat_room
         participants_.erase(participant);
     }
 
-    void deliver(const std::string& msg)
+    void deliver(const std::string& msg, chat_participant_ptr sender)
     {
-        recent_msgs_.push_back(msg);
+        std::stringstream ss;
+        ss << sender << " says: " << msg;
+        recent_msgs_.push_back(ss.str());
+
         while (recent_msgs_.size() > max_recent_msgs)
         {
             recent_msgs_.pop_front();
@@ -133,7 +142,10 @@ class chat_room
 
         for (const auto& participant : participants_)
         {
-            participant->deliver(msg);
+            if (sender != participant)
+            {
+                participant->deliver(ss.str());
+            }
         }
     }
 
@@ -193,7 +205,8 @@ class chat_session : public chat_participant, public std::enable_shared_from_thi
                                 [this, self](boost::system::error_code ec, std::size_t /*length*/) {
                                     if (!ec)
                                     {
-                                        room_.deliver(std::string(read_msg_.body(), read_msg_.body_length()));
+                                        room_.deliver(std::string(read_msg_.body(), read_msg_.body_length()),
+                                                      shared_from_this());
                                         do_read_header();
                                     }
                                     else
@@ -226,7 +239,7 @@ class chat_session : public chat_participant, public std::enable_shared_from_thi
     tcp::socket socket_;
     chat_room& room_;
     chat_message read_msg_;
-    std::deque<chat_message> write_msgs_;
+    chat_message_queue write_msgs_;
 };
 
 class chat_server

@@ -16,6 +16,8 @@ class chat_message
 
     chat_message() : body_length_(0)
     {
+        // ≥ı ºªØ header
+        std::fill(data_, data_ + header_length, 0);
     }
 
     chat_message(std::string const& msg) : body_length_(msg.size())
